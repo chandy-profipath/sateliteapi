@@ -16,4 +16,4 @@ cmds = [
 ]
 
 [start]
-cmd = "uvicorn satelite:app --host 0.0.0.0 --port $PORT"
+cmd = "/opt/venv/bin/uvicorn satelite:app --host 0.0.0.0 --port $PORT"
