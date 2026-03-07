@@ -1,15 +1,31 @@
-import os
-import requests
-import geopandas as gpd
-import stackstac
-import numpy as np
-import xarray as xr
-from fastapi import FastAPI, HTTPException
-from pystac_client import Client
-import planetary_computer
-import uvicorn
-import traceback
 import sys
+import os
+
+print("--- CANARY: APP INITIALIZING ---", flush=True)
+
+# Pre-import heavy dependencies to catch errors early
+try:
+    print("--- CANARY: Importing requests ---", flush=True)
+    import requests
+    print("--- CANARY: Importing geopandas ---", flush=True)
+    import geopandas as gpd
+    print("--- CANARY: Importing stackstac ---", flush=True)
+    import stackstac
+    print("--- CANARY: Importing numpy ---", flush=True)
+    import numpy as np
+    print("--- CANARY: Importing xarray ---", flush=True)
+    import xarray as xr
+    from fastapi import FastAPI, HTTPException
+    from pystac_client import Client
+    import planetary_computer
+    import uvicorn
+    import traceback
+    print("--- CANARY: ALL IMPORTS SUCCESSFUL ---", flush=True)
+except Exception as e:
+    print(f"--- CANARY: IMPORT CRASH: {e} ---", flush=True)
+    import traceback
+    traceback.print_exc()
+    sys.exit(1)
 
 # Ensure stdout is flushed on every print
 def print_flush(*args, **kwargs):
@@ -101,7 +117,7 @@ async def analyze_field(field_geojson: dict):
         stack = stackstac.stack(
             [item], 
             assets=["B04", "B08", "B11", "SCL"], 
-            bounds_latlon=bounds,
+            bounds_latlon=tuple(bounds),
             epsg=4326
         )
         
