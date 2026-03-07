@@ -1,3 +1,4 @@
+import os
 import requests
 import geopandas as gpd
 import stackstac
@@ -7,7 +8,6 @@ from fastapi import FastAPI, HTTPException
 from pystac_client import Client
 import planetary_computer
 import uvicorn
-import time
 import traceback
 import sys
 
@@ -18,17 +18,23 @@ def print_flush(*args, **kwargs):
 
 app = FastAPI(title="Zimbabwe Agri-Monitor API")
 
-# Setup: Connect to the free Microsoft Planetary Computer STAC Catalog
-print_flush("Connecting to Planetary Computer...")
-try:
-    catalog = Client.open(
-        "https://planetarycomputer.microsoft.com/api/stac/v1",
-        modifier=planetary_computer.sign_inplace,
-    )
-    print_flush("Connected to catalog.")
-except Exception as e:
-    print_flush(f"CRITICAL: Failed to connect to Planetary Computer: {e}")
-    catalog = None
+# Lazy catalog — connects on first request so startup is instant
+_catalog = None
+
+def get_catalog():
+    global _catalog
+    if _catalog is None:
+        print_flush("Connecting to Planetary Computer...")
+        try:
+            _catalog = Client.open(
+                "https://planetarycomputer.microsoft.com/api/stac/v1",
+                modifier=planetary_computer.sign_inplace,
+            )
+            print_flush("Connected to catalog.")
+        except Exception as e:
+            print_flush(f"CRITICAL: Failed to connect to Planetary Computer: {e}")
+            raise HTTPException(status_code=503, detail=f"Catalog unavailable: {e}")
+    return _catalog
 
 def get_soil_data(lat, lon):
     """Fetch real clay/sand/silt percentages from SoilGrids V2 API."""
@@ -52,6 +58,10 @@ def get_soil_data(lat, lon):
         print_flush(f"SoilGrids error: {e}")
         return "Soil data temporarily unavailable"
 
+@app.get("/")
+def health_check():
+    return {"status": "ok", "service": "Zimbabwe Agri-Monitor API"}
+
 @app.post("/analyze")
 async def analyze_field(field_geojson: dict):
     try:
@@ -71,7 +81,7 @@ async def analyze_field(field_geojson: dict):
 
         # 2. Satellite Search (Sentinel-2 L2A)
         print_flush("Searching for imagery...")
-        search = catalog.search(
+        search = get_catalog().search(
             collections=["sentinel-2-l2a"],
             bbox=gdf.total_bounds,
             max_items=1,
@@ -178,4 +188,5 @@ async def analyze_field(field_geojson: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
