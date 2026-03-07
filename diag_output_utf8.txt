@@ -1,0 +1,116 @@
+﻿Connecting to Planetary Computer...
+Connected to catalog.
+Starting diagnostic...
+Request received
+Processing geometry...
+python : C:\Users\user
+\Desktop\Hurudza 
+AI\Satelite 
+Saver\satelite.py:67: 
+UserWarning: Geometry 
+is in a geographic 
+CRS. Results from 
+'centroid' are likely 
+incorrect. Use 
+'GeoSeries.to_crs()' 
+to re-project 
+geometries to a 
+projected CRS before 
+this operation.
+At line:1 char:1
++ python diag.py > 
+diag_output.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (C:\Users\u   
+ ser\D...this oper    
+ation.:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+
+  centroid = gdf.geome
+try.centroid.iloc[0]
+Geometry processed. Area: 10.56 ha at -17.830699999999997, 31.0282
+Searching for imagery...
+C:\Users\user\AppData\
+Local\Packages\PythonS
+oftwareFoundation.Pyth
+on.3.11_qbz5n2kfra8p0\
+LocalCache\local-packa
+ges\Python311\site-pac
+kages\pystac_client\it
+em_search.py:925: 
+FutureWarning: 
+get_items() is 
+deprecated, use 
+items() instead
+  warnings.warn(
+Found item: S2C_MSIL2A_20260214T075031_R135_T36KTF_20260214T112510 from 2026-02-14T07:50:31.025000Z
+Stacking and computing data...
+Traceback (most 
+recent call last):
+  File "C:\Users\user\
+Desktop\Hurudza 
+AI\Satelite 
+Saver\diag.py", line 
+23, in run_diag
+    result = await 
+analyze_field(data)
+             ^^^^^^^^^
+^^^^^^^^^^^^^^^^
+  File "C:\Users\user\
+Desktop\Hurudza 
+AI\Satelite 
+Saver\satelite.py", 
+line 174, in 
+analyze_field
+    raise e
+  File "C:\Users\user\
+Desktop\Hurudza 
+AI\Satelite 
+Saver\satelite.py", 
+line 88, in 
+analyze_field
+    stack = 
+stackstac.stack(
+            
+^^^^^^^^^^^^^^^^
+  File "C:\Users\user\
+AppData\Local\Packages
+\PythonSoftwareFoundat
+ion.Python.3.11_qbz5n2
+kfra8p0\LocalCache\loc
+al-packages\Python311\
+site-packages\stacksta
+c\stack.py", line 
+290, in stack
+    asset_table, 
+spec, asset_ids, 
+plain_items = 
+prepare_items(
+                      
+                      
+    ^^^^^^^^^^^^^^
+  File "C:\Users\user\
+AppData\Local\Packages
+\PythonSoftwareFoundat
+ion.Python.3.11_qbz5n2
+kfra8p0\LocalCache\loc
+al-packages\Python311\
+site-packages\stacksta
+c\prepare.py", line 
+372, in prepare_items
+    assert 
+out_bounds, 
+f"{out_bounds=}"
+ValueError: The truth 
+value of an array 
+with more than one 
+element is ambiguous. 
+Use a.any() or a.all()
+CAUGHT EXCEPTION:

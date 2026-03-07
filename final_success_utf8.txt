@@ -1,0 +1,78 @@
+﻿Connecting to Planetary Computer...
+Connected to catalog.
+Starting diagnostic...
+Request received
+Processing geometry...
+python : C:\Users\user
+\Desktop\Hurudza 
+AI\Satelite 
+Saver\satelite.py:67: 
+UserWarning: Geometry 
+is in a geographic 
+CRS. Results from 
+'centroid' are likely 
+incorrect. Use 
+'GeoSeries.to_crs()' 
+to re-project 
+geometries to a 
+projected CRS before 
+this operation.
+At line:1 char:1
++ python diag.py > 
+final_success.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (C:\Users\u   
+ ser\D...this oper    
+ation.:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+
+  centroid = gdf.geome
+try.centroid.iloc[0]
+Geometry processed. Area: 10.56 ha at -17.830699999999997, 31.0282
+Searching for imagery...
+C:\Users\user\AppData\
+Local\Packages\PythonS
+oftwareFoundation.Pyth
+on.3.11_qbz5n2kfra8p0\
+LocalCache\local-packa
+ges\Python311\site-pac
+kages\pystac_client\it
+em_search.py:925: 
+FutureWarning: 
+get_items() is 
+deprecated, use 
+items() instead
+  warnings.warn(
+Found item: S2C_MSIL2A_20260214T075031_R135_T36KTF_20260214T112510 from 2026-02-14T07:50:31.025000Z
+Stacking and computing data...
+Data computed. Shape: (4, 34, 32)
+Calculating indices...
+Reducing indices to scalars...
+Indices: NDVI=0.23614989538774592, MSI=1.0621029671920936
+Determining labels for NDVI=0.23614989538774592, MSI=1.0621029671920936
+Fetching soil data...
+Soil: Soil data unavailable
+SUCCESS!
+{
+  "metadata": {
+    "hectares": 10.56,
+    "date": "2026-02-14T07:50:31.025000Z",
+    "cloud_cover": 26.032847
+  },
+  "health": {
+    "score": 0.24,
+    "label": "Stressed"
+  },
+  "water_stress": {
+    "score": 1.06,
+    "label": "Optimal"
+  },
+  "soil": "Soil data unavailable"
+}
