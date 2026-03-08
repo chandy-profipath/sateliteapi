@@ -1,29 +1,20 @@
 import sys
 import os
+import traceback
+import requests
+from fastapi import FastAPI, HTTPException
+import uvicorn
 
 print("--- CANARY: APP INITIALIZING ---", flush=True)
 
 # Pre-import heavy dependencies to catch errors early
 try:
     print("--- CANARY: Importing requests ---", flush=True)
-    import requests
-    print("--- CANARY: Importing geopandas ---", flush=True)
-    import geopandas as gpd
-    print("--- CANARY: Importing stackstac ---", flush=True)
-    import stackstac
-    print("--- CANARY: Importing numpy ---", flush=True)
-    import numpy as np
-    print("--- CANARY: Importing xarray ---", flush=True)
-    import xarray as xr
-    from fastapi import FastAPI, HTTPException
-    from pystac_client import Client
-    import planetary_computer
-    import uvicorn
-    import traceback
+    # requests is already imported globally
     print("--- CANARY: ALL IMPORTS SUCCESSFUL ---", flush=True)
 except Exception as e:
     print(f"--- CANARY: IMPORT CRASH: {e} ---", flush=True)
-    import traceback
+    # traceback is already imported globally
     traceback.print_exc()
     sys.exit(1)
 
@@ -42,6 +33,8 @@ def get_catalog():
     if _catalog is None:
         print_flush("Connecting to Planetary Computer...")
         try:
+            from pystac_client import Client
+            import planetary_computer
             _catalog = Client.open(
                 "https://planetarycomputer.microsoft.com/api/stac/v1",
                 modifier=planetary_computer.sign_inplace,
@@ -89,6 +82,7 @@ async def analyze_field(field_geojson: dict):
             features = [{"type": "Feature", "properties": {}, "geometry": field_geojson}]
             
         print_flush("Processing geometry...")
+        import geopandas as gpd
         gdf = gpd.GeoDataFrame.from_features(features, crs="EPSG:4326")
         centroid = gdf.geometry.centroid.iloc[0]
         utm_gdf = gdf.to_crs(gdf.estimate_utm_crs())
@@ -99,25 +93,29 @@ async def analyze_field(field_geojson: dict):
         print_flush("Searching for imagery...")
         search = get_catalog().search(
             collections=["sentinel-2-l2a"],
-            bbox=gdf.total_bounds,
+            bbox=gdf.total_bounds.tolist(),
             max_items=1,
             query={"eo:cloud_cover": {"lt": 30}},
             sortby=[{"field": "properties.datetime", "direction": "desc"}]
         )
-        items = list(search.get_items())
+        items = list(search.items())
         if not items: raise HTTPException(status_code=404, detail="No clear imagery found")
         item = items[0]
         print_flush(f"Found item: {item.id} from {item.properties['datetime']}")
 
         # 3. Cloud-Masked Processing
         print_flush("Stacking and computing data...")
+        import stackstac
+        import numpy as np
         # stackstac expects a list of items or an ItemCollection
-        # Convert bounds to a standard list to avoid truth value ambiguity inside stackstac
-        bounds = gdf.total_bounds.tolist()
+        # Convert bounds to a standard list of floats
+        minx, miny, maxx, maxy = gdf.total_bounds
+        bounds = (float(minx), float(miny), float(maxx), float(maxy))
+        
         stack = stackstac.stack(
-            [item], 
+            item, 
             assets=["B04", "B08", "B11", "SCL"], 
-            bounds_latlon=tuple(bounds),
+            bounds_latlon=bounds,
             epsg=4326
         )
         
