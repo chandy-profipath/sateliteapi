@@ -1,8 +1,10 @@
+providers = ["python"]
+
 [phases.setup]
-nixpkgs = ["python311", "gdal", "geos", "proj", "gcc"]
+nixPkgs = ["python311", "gdal", "geos", "proj", "gcc"]
 
 [phases.install]
-cmds = ["pip install -r requirements.txt"]
+cmds = ["python -m pip install -r requirements.txt"]
 
 [start]
 cmd = "uvicorn satelite:app --host 0.0.0.0 --port $PORT"
